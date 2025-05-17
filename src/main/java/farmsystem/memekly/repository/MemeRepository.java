@@ -1,4 +1,7 @@
-package src.main.java.farmsystem.memekly.repository;
+package farmsystem.memekly.repository;
 
-public class MemeRepository {
+import farmsystem.memekly.domain.Meme;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface MemeRepository extends MongoRepository<Meme, String> {
 }
