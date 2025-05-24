@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      uri: "${MONGODB_URI}"
+      database: "${MONGODB_DB}"
+
+youtube:
+  api:
+    key: "${YOUTUBE_API_KEY}"
