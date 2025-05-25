@@ -37,3 +37,6 @@ out/
 
 ### 환경변수 ###
 .env
+
+# IntelliJ IDEA
+.idea/
