@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import farmsystem.memekly.domain.Meme;
 import farmsystem.memekly.repository.MemeRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,11 +20,12 @@ public class YouTubeService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final MemeRepository memeRepository;
 
-    private final String apiKey = System.getProperty("youtube.api.key");
+    // Youtube API 키 설정
+    @Value("${youtube.api.key}")
+    private String youtubeApiKey;
 
     public YouTubeService(MemeRepository memeRepository) {
         this.memeRepository = memeRepository;
-//        System.out.println("🔑 API KEY Loaded: " + apiKey); // YouTubeService.java 내부
     }
 
     public void fetchMemesFromYouTube(String keyword) {
@@ -34,7 +36,7 @@ public class YouTubeService {
                     + "&maxResults=5"
                     + "&regionCode=KR"
                     + "&q=" + keyword
-                    + "&key=" + apiKey;
+                    + "&key=" + youtubeApiKey;
 
             ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
             String body = response.getBody();
