@@ -1,0 +1,55 @@
+name: Deploy on Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+
+env: # Docker Hub 로그인 및 Koyeb 재배포에 필요한 환경 변수
+  DOCKER_HUB_USERNAME: your-docker-hub-username # Docker Hub 사용자 이름 (Docker 이미지 태그에 사용)
+  DOCKER_IMAGE_NAME: your-app-name # Docker 이미지 이름 (Docker 이미지 태그에 사용)
+  KOYEB_APP_NAME: your-koyeb-app-name # Koyeb 애플리케이션 이름 (재배포 API 호출에 사용)
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write # Docker Hub에 이미지 푸시 권한
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+          build-args: |
+            JAR_FILE=build/libs/*.jar
+
+      - name: Trigger Koyeb Redeploy
+        run: |
+          curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
+          "https://app.koyeb.com/api/v1/apps/${{ secrets.KOYEB_APP_NAME }}/redeploy"
