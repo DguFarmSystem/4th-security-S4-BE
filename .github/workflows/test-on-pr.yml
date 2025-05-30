@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - develop # develop 브랜치로의 Pull Request 발생 시
+  push:
+    branches:
+      - develop # develop 브랜치로의 Push 발생 시
 
 jobs:
   test:
